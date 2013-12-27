@@ -1,6 +1,7 @@
 (ns grimoire-cloud.oauth
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as ac]
+            [grimoire-cloud.tool :as tl]
             [cljs-http.client :as client]))
 
 ; コンシューマーキー
@@ -8,9 +9,15 @@
 (def req-token (atom nil))
 
 (defn get-req-token
-  " コンシューマーキーからリクエストトークンを取る"
-  [consumers]
-  (go
-    (let [response (<! 
-                     (http/post "https://api.twitter.com/oauth/request_token"
-                       :body (str )
+  "リクエストトークンをclojure.mapで取得する"
+  []
+  (let [acce (tl/clj->js
+               {:consumerSecret (:consumerSecret consumers)
+                :tokenSecret ""})
+        mes (tl/clj->js
+              {:method "GET"
+               :action "http://twitter.com/oauth/request_token"
+               :parameters
+                 {:oauth_signature_method "HMAC-SHA1"
+                  :oauth_consumer_key (:consumerKey consumers)}})
+
