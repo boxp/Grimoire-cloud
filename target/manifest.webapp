@@ -1,0 +1,19 @@
+{
+  "name": "Grimoire cloud",
+  "description": "A Twitter client made by Clojure",
+  "launch_path": "/index.html",
+  "icons": {
+    "128": "/img/Grimoire_icon.png"
+  },
+  "developer": {
+    "name": "Keitaro Takeuchi",
+    "url": "http://archbox.dip.jp"
+  },
+  "default_locale": "ja",
+  "type": "privileged",
+  "permissions": {
+    "systemXHR": {
+      "description": "for OAuth"
+    }
+  }
+}

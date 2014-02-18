@@ -1,23 +1,42 @@
 (ns grimoire-cloud.oauth
-  (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :as ac]
-            [grimoire-cloud.tool :as tl]
-            [cljs-http.client :as client]))
+  (:require [grimoire-cloud.wrapper.twitter :as tw]
+            [grimoire-cloud.wrapper.oauth :as oa]
+            [grimoire-cloud.wrapper.ui :as wui]
+            [grimoire-cloud.storage :as st]))
 
-; コンシューマーキー
-(def consumers {:consumerKey "Blnxqqx44rdGTZsBYI4bKw", :consumerSecret "bmQIczed6gbdqkN0V8tV11Carwy2PLj7l2bOIAdcoE"})
-(def req-token (atom nil))
+(def consumer {:key "eTYIHvFk0asDrjaecEOcw"
+               :secret "T4ONaTLiZCARQT95cbhfuMBdKCYEi6YeGNnoM774Y"})
 
-(defn get-req-token
-  "リクエストトークンをclojure.mapで取得する"
-  []
-  (let [acce (tl/clj->js
-               {:consumerSecret (:consumerSecret consumers)
-                :tokenSecret ""})
-        mes (tl/clj->js
-              {:method "GET"
-               :action "http://twitter.com/oauth/request_token"
-               :parameters
-                 {:oauth_signature_method "HMAC-SHA1"
-                  :oauth_consumer_key (:consumerKey consumers)}})
+(defn get-verified-twitter
+  "return completed twitter object"
+  [consumer] 
+    (doto (tw/init-twitter 
+            (:key consumer) 
+            (:secret consumer))
+      (oa/fetch-request-token 
+        #(wui/open-browser %))
+      (oa/set-verifier 
+        (js/prompt "Please enter your PIN"))
+      (oa/fetch-access-token)
+      (st/save-access-token-key)))
 
+(defn get-twitter
+  "return completed twitter object"
+  [consumer access-token]
+  (if access-token
+    (doto (tw/init-twitter
+            (:key consumer)
+            (:secret consumer))
+      (oa/set-access-token (:key access-token) (:secret access-token)))
+    nil))
+
+(defn reborn-twitter
+  "return completed twitter object 
+   from oauth object"
+  [consumer oauth]
+  (if oauth
+    (tw/->Twitter 
+      (:key consumer)
+      (:secret consumer)
+      oauth)
+    nil))

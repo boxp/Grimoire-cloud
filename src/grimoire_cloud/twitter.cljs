@@ -1,18 +1,11 @@
-(ns grimoire-cloud.twitter)
+(ns grimoire-cloud.twitter
+  (:require [grimoire-cloud.wrapper.twitter :as wtw]))
 
-; 全てのツイートを保存するベクタ
-(def tweets (transient []))
-; ユーザートークンを保管するベクタ
-(def tokens (transient #{}))
-; ツイッターアカウントを保管するベクタ
-(def twitters (transient #{}))
+(defn post 
+  "post tweet"
+  ([twitter text]
+    (wtw/status-update twitter text nil))
+  ([twitter text & opts]
+    (let [option (apply hash-map opts)]
+      (wtw/status-update twitter text option))))
 
-; データ構造
-(defrecord User
-  [disc id screen-name name profile-img tweet-count disc])
-
-(defrecord Tweet
-  [user faved? reted? isret? id date txt mention-user source])
-
-(defrecord Twitter
-  [
